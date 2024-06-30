@@ -1,11 +1,10 @@
 import tkinter as tk
 from tkinter import ttk, messagebox
-import folium
 import pandas as pd
 import matplotlib.pyplot as plt
 from PIL import Image, ImageTk
 import os
-from tkhtmlview import HTMLLabel
+from tkintermapview import TkinterMapView
 
 class AccidentApp:
     def __init__(self, root):
@@ -24,11 +23,9 @@ class AccidentApp:
         self.analysis_button = tk.Button(root, text="分析事故數據", command=self.analyze_data)
         self.analysis_button.pack()
 
-        # Frame to display the map and charts
         self.display_frame = tk.Frame(root)
         self.display_frame.pack(fill=tk.BOTH, expand=True)
 
-        # Fake data
         self.accident_data = {
             "accident001": {
                 "date": "2024-06-20",
@@ -56,12 +53,10 @@ class AccidentApp:
             }
         }
 
-        # Populate the ComboBox with accident IDs
         self.accident_id_combobox['values'] = list(self.accident_data.keys())
 
     def fetch_accident(self):
         accident_id = self.accident_id_combobox.get().strip()
-        print(f"Selected accident ID: {accident_id}")  # Debugging statement
         if not accident_id:
             messagebox.showwarning("警告", "請選擇事故ID")
             return
@@ -69,33 +64,23 @@ class AccidentApp:
         data = self.accident_data.get(accident_id)
         
         if data:
-            print(f"Accident data found: {data}")  # Debugging statement
             self.display_accident(data)
         else:
-            print("No accident data found.")  # Debugging statement
             messagebox.showerror("錯誤", "未找到事故")
 
     def display_accident(self, data):
         location = data['location']
         
-        # Clear previous display if any
         for widget in self.display_frame.winfo_children():
             widget.destroy()
 
-        # Create Folium map
-        folium_map = folium.Map(location=[location['latitude'], location['longitude']], zoom_start=12)
+        map_widget = TkinterMapView(self.display_frame, width=800, height=600)
+        map_widget.set_position(location['latitude'], location['longitude'])
+        map_widget.set_zoom(12)
+        map_widget.pack(fill=tk.BOTH, expand=True)
 
-        # Add marker
-        folium.Marker([location['latitude'], location['longitude']], popup=data['description']).add_to(folium_map)
+        map_widget.set_marker(location['latitude'], location['longitude'], text=data['description'])
 
-        # Save map as HTML string
-        map_html = folium_map._repr_html_()
-
-        # Display map in HTMLLabel
-        html_label = HTMLLabel(self.display_frame, html=map_html)
-        html_label.pack(fill=tk.BOTH, expand=True)
-
-        # Display accident details (could be shown in a Label or Text widget next to the map)
         details_label = tk.Label(self.display_frame, text=f"事故描述:\n{data['description']}", padx=10, pady=10)
         details_label.pack(side=tk.RIGHT, padx=10, pady=10, fill=tk.BOTH, expand=True)
 
@@ -107,11 +92,9 @@ class AccidentApp:
         }
         df = pd.DataFrame(data)
 
-        # Clear previous display if any
         for widget in self.display_frame.winfo_children():
             widget.destroy()
 
-        # Bar chart
         plt.figure(figsize=(4, 3), dpi=80)
         accident_counts = df['location'].value_counts()
         accident_counts.plot(kind='bar', ax=plt.gca())
@@ -123,14 +106,12 @@ class AccidentApp:
         plt.savefig(bar_chart_path, dpi=80)
         plt.close()
 
-        # Display bar chart in Tkinter GUI
         bar_chart_image = Image.open(bar_chart_path)
         bar_chart_image = ImageTk.PhotoImage(bar_chart_image)
         bar_chart_label = tk.Label(self.display_frame, image=bar_chart_image)
         bar_chart_label.image = bar_chart_image
         bar_chart_label.pack(side=tk.LEFT, padx=10, pady=10)
 
-        # Pie chart
         plt.figure(figsize=(4, 3), dpi=80)
         plt.pie(accident_counts, labels=accident_counts.index, autopct='%1.1f%%', startangle=140)
         plt.title('不同城市的交通事故比例')
@@ -140,7 +121,6 @@ class AccidentApp:
         plt.savefig(pie_chart_path, dpi=80)
         plt.close()
 
-        # Display pie chart in Tkinter GUI
         pie_chart_image = Image.open(pie_chart_path)
         pie_chart_image = ImageTk.PhotoImage(pie_chart_image)
         pie_chart_label = tk.Label(self.display_frame, image=pie_chart_image)
