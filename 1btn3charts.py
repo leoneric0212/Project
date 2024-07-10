@@ -88,10 +88,10 @@ class Window(tk.Tk):
 
     def setup_city_widgets(self, parent):
         self.select_all_button = ttk.Button(parent, text="全選", command=self.select_all)
-        self.select_all_button.grid(column=0, row=0, padx=5, pady=5, sticky=tk.W)
+        self.select_all_button.grid(column=0, row=0,columnspan=1, padx=5, pady=5, sticky=tk.W)
         for i, city in enumerate(self.cities):
             cb = ttk.Checkbutton(parent, text=city, variable=self.city_vars[city])
-            cb.grid(column=i % 6 + 1, row=i // 6, padx=5, pady=5, sticky=tk.W)
+            cb.grid(column=i % 6, row=i // 6+1, padx=5, pady=5, sticky=tk.W)
 
     def setup_extra_widgets(self, parent):
         # 天气
@@ -113,8 +113,9 @@ class Window(tk.Tk):
 
 
     def setup_map(self, parent):
-        self.map = TkinterMapView(parent, width=800, height=400)
+        self.map = TkinterMapView(parent, width=800, height=400,max_zoom=7)
         self.map.grid(column=0, row=0, padx=10, pady=10)
+        self.map.set_position(23.58259486, 120.9738819,marker=False)
 
         self.pie_chart_button = ttk.Button(parent, text="顯示对应的线图", command=self.show_pie_chart)
         self.pie_chart_button.grid(column=0, row=1, padx=10, pady=10)
@@ -185,6 +186,7 @@ class Window(tk.Tk):
         #  dictionary ---> pandas DataFrame for plotting
         df = pd.DataFrame(list(accident_types.items()), columns=['事故類別', 'Count'])
         fig, axes = plt.subplots(nrows=2, ncols=2, figsize=(12, 10))
+        plt.rcParams['font.sans-serif'] = ['Microsoft YaHei'] # 使用中文字體
 
         # Pie chart
         axes[0, 0].pie(df['Count'], labels=df['事故類別'], autopct='%1.1f%%', startangle=140)
