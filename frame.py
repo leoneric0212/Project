@@ -130,9 +130,9 @@ class Window(tk.Tk):
         #右上地圖欄位
         self.right_top_frame=ttk.Labelframe(mainframe,border=5,labelanchor='n',text="事故地圖")
         self.right_top_frame.grid(column=1,row=0)
-        map=TkinterMapView(self.right_top_frame,width=800,height=400)
+        map=TkinterMapView(self.right_top_frame,width=800,height=400,max_zoom=7)
         map.grid(column=0,row=0)
-        mapdefault=map.set_position(25.115035182309448, 121.53834876780614,marker=True)
+        mapdefault=map.set_position(23.58259486, 120.9738819,marker=True)
         
         #下方資料欄位
         self.bottom_frame=ttk.Labelframe(mainframe,border=5,labelanchor='nw',text="詳細資料",width=800)
