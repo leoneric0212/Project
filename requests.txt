@@ -5,3 +5,4 @@ ttkthemes
 matplotlib
 folium
 tkhtmlview
+tkintermapview
