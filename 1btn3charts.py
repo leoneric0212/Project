@@ -53,8 +53,9 @@ class Window(tk.Tk):
         extra_frame.grid(column=0, row=2, padx=10, pady=10, sticky=tk.W)
         self.setup_extra_widgets(extra_frame)
         
-        self.submit_frame = ttk.Labelframe(left_top_frame, text="進階選項：")
+        self.submit_frame = ttk.Labelframe(left_top_frame, text="篩選結果：")
         self.submit_frame.grid(column=0, row=3, padx=10, pady=10, sticky=tk.W)
+        ttk.Label(self.submit_frame, text=f"案件數目：").grid(column=0, row=0, padx=10, pady=10, sticky=tk.W)
         
         submit_button=ttk.Button(left_top_frame, text="送出", command=self.submit_data).grid(column=0, row=4, padx=10, pady=10, sticky=tk.E)
         
