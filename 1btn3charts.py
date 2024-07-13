@@ -8,19 +8,13 @@ import pandas as pd
 class Window(tk.Tk):
     def __init__(self):
         super().__init__()
-        # self.df=pd.read_csv('./data/2018/2018年度A2交通事故資料_1.csv')
-        # print(type(self.df))
         self.title("交通事故資料查詢系統")
         self.geometry("1600x1000")  
 
         self.init_vars()
 
         self.setup_gui()
-
-        # self.populate_respond()
         
-        # self.populate_map()
-
     def init_vars(self):
         self.years = list(range(2018, 2025))
         self.months = list(range(1, 13))
@@ -59,9 +53,11 @@ class Window(tk.Tk):
         extra_frame.grid(column=0, row=2, padx=10, pady=10, sticky=tk.W)
         self.setup_extra_widgets(extra_frame)
         
-        submit_button = ttk.Button(left_top_frame, text="篩選", command=self.submit_data)
-        submit_button.grid(column=0, row=3, padx=10, pady=10, sticky=tk.E)
-
+        self.submit_frame = ttk.Labelframe(left_top_frame, text="進階選項：")
+        self.submit_frame.grid(column=0, row=3, padx=10, pady=10, sticky=tk.W)
+        
+        submit_button=ttk.Button(left_top_frame, text="送出", command=self.submit_data).grid(column=0, row=4, padx=10, pady=10, sticky=tk.E)
+        
         right_top_frame = ttk.Labelframe(mainframe, text="事故地圖")
         right_top_frame.grid(column=1, row=0, padx=10, pady=10)
         self.setup_map(right_top_frame)
@@ -120,16 +116,15 @@ class Window(tk.Tk):
         ttk.Label(parent, text="肇逃：").grid(column=0, row=5, padx=5, pady=5, sticky=tk.E)
         for i, (run, var) in enumerate(self.run_vars.items()):
             ttk.Checkbutton(parent, text=run, variable=var).grid(column=i + 1, row=5, padx=5, pady=5, sticky=tk.W)
-
-
+            
     def setup_map(self, parent):
         self.map = TkinterMapView(parent, width=800, height=400)
         self.map.grid(column=0, row=0, padx=10, pady=10)
         self.map.set_position(25.115045154785246, 121.53834693952264,marker=True)
         
 
-        # self.pie_chart_button = ttk.Button(parent, text="顯示对应的线图", command=self.show_pie_chart)
-        # self.pie_chart_button.grid(column=0, row=1, padx=10, pady=10)
+        self.pie_chart_button = ttk.Button(parent, text="顯示对应的线图", command=self.show_pie_chart)
+        self.pie_chart_button.grid(column=0, row=1, padx=10, pady=10)
 
     def setup_treeview(self, parent):
         self.treeview = ttk.Treeview(parent, columns=('#0','#1', '#2', '#3', '#4', '#5', '#6', '#7', '#8','#9','#10'),show='headings')
@@ -168,7 +163,14 @@ class Window(tk.Tk):
             (df['光線名稱'].isin(selected_lights)) 
             # (df['肇事逃逸類別名稱_是否肇逃'].isin(selected_runs))
         ]
+        result_count = len(filtered_df)
+        self.update_counts(result_count)
         self.populate_respond(filtered_df)
+        
+    def update_counts(self,count):
+        for widget in self.submit_frame.winfo_children():   #後面這段看不懂
+            widget.destroy()
+        ttk.Label(self.submit_frame, text=f"案件數目：{count}").grid(column=1, row=0, padx=10, pady=10, sticky=tk.W)
         
     def populate_respond(self,data):
         for row in self.treeview.get_children():
@@ -186,11 +188,9 @@ class Window(tk.Tk):
                 row['死亡受傷人數'],
                 row['當事者順位']
             ))
-            
-        
-        # Read populate Map
-        # self.map.delete()
 
+        # Read populate Map
+        self.map.delete_all_marker()
         for _, row in data.iterrows():
             lat=float(row['緯度'])
             lng=float(row['經度'])
