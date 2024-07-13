@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import ttk, messagebox
 import csv
+# import pandas as pd
 import matplotlib.pyplot as plt  # Import Matplotlib
 from tkintermapview import TkinterMapView
 import pandas as pd
@@ -8,6 +9,8 @@ import pandas as pd
 class Window(tk.Tk):
     def __init__(self):
         super().__init__()
+        # self.df=pd.read_csv('./data/2018/2018年度A2交通事故資料_1.csv')
+        # print(type(self.df))
 
         self.title("交通事故資料查詢系統")
         self.geometry("1600x1000")  
@@ -121,12 +124,12 @@ class Window(tk.Tk):
         self.pie_chart_button.grid(column=0, row=1, padx=10, pady=10)
 
     def setup_treeview(self, parent):
-        self.treeview = ttk.Treeview(parent, columns=('#0', '#1', '#2', '#3', '#4', '#5', '#6', '#7', '#8'), show='headings')
+        self.treeview = ttk.Treeview(parent, columns=('#0','#1', '#2', '#3', '#4', '#5', '#6', '#7', '#8'),show='headings')
         self.treeview.grid(column=0, row=0, sticky='nsew')
 
-        headings = ['日期', '時間', '事故類別', '地區', '事故類別', '天氣', '光線狀態', '肇因研判', '肇事逃逸']
-        for i, col in enumerate(headings):
-            self.treeview.heading('#' + str(i), text=col, anchor='e')
+        headings = ['日期', '時間', '事故類別', '地區', '天氣', '光線狀態', '肇因研判', '肇事逃逸']
+        for i, col in enumerate(headings,start=1):
+            self.treeview.heading('#' + str(i), text=col, anchor='center')
             self.treeview.column('#' + str(i), minwidth=60, width=150, anchor='e')
 
         scrollbar = ttk.Scrollbar(parent, orient="vertical", command=self.treeview.yview)
@@ -139,10 +142,11 @@ class Window(tk.Tk):
 
         # Read CSV and populate Treeview
         with open('112年度A2交通事故資料_1.csv', newline='', encoding='utf-8') as csvfile:
-            reader = csv.reader(csvfile)
-            next(reader) 
+            reader = csv.DictReader(csvfile)
+            # next(reader) 
             for row in reader:
-                self.treeview.insert('', 'end', values=row)
+                select_data=(row['發生日期'], row['發生時間'], row['事故類別名稱'], row['發生地點'], row['天候名稱'], row['光線名稱'], row['肇因研判子類別名稱_主要'], row['當事者順位'])  #似乎
+                self.treeview.insert('', 'end', values=select_data)
 
     def update_end_dates(self, event=None):
         start_year = int(self.start_year.get())
