@@ -147,7 +147,7 @@ class Window(tk.Tk):
         selected_runs = [run for run, var in self.run_vars.items() if var.get()]
         
         try:
-            df=pd.read_csv(f"./整理完的_csv/{selected_year}.csv",encoding='utf-16')
+            df=pd.read_csv(f"./data/{selected_year}.csv",encoding='utf-16')
             df.columns=df.columns.str.strip()
         except FileNotFoundError:
             messagebox.showerror(f"找不到{selected_year}.csv資料")
