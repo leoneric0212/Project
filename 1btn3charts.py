@@ -128,13 +128,13 @@ class Window(tk.Tk):
         self.pie_chart_button.grid(column=0, row=1, padx=10, pady=10)
 
     def setup_treeview(self, parent):
-        self.treeview = ttk.Treeview(parent, columns=('#0','#1', '#2', '#3', '#4', '#5', '#6', '#7', '#8','#9','#10'),show='headings')
+        self.treeview = ttk.Treeview(parent, columns=('#0','#1', '#2', '#3', '#4', '#5', '#6', '#7', '#8','#9'),show='headings')
         self.treeview.grid(column=0, row=0, sticky='nsew')
 
         headings = ['日期', '時間', '事故類別', '地區', '天氣', '光線狀態','速限', '道路類別', '死亡受傷人數']
         for i, col in enumerate(headings,start=1):
             self.treeview.heading('#' + str(i), text=col, anchor='center')
-            self.treeview.column('#' + str(i), minwidth=60, width=150, anchor='e')
+            self.treeview.column('#' + str(i), minwidth=60, width=150, anchor='s')
 
         scrollbar = ttk.Scrollbar(parent, orient="vertical", command=self.treeview.yview)
         scrollbar.grid(column=1, row=0, sticky='ns')
@@ -151,20 +151,20 @@ class Window(tk.Tk):
         selected_runs = [run for run, var in self.run_vars.items() if var.get()]
         
         try:
-            df=pd.read_csv(f"./整理完的_csv/變數刪減{selected_year}.csv",encoding='utf-16')
+            df=pd.read_csv(f"./data/{selected_year}.csv",encoding='utf-16')
+            df.columns=df.columns.str.strip()
         except FileNotFoundError:
             messagebox.showerror(f"找不到{selected_year}.csv資料")
         df['發生日期']=pd.to_datetime(df['發生日期'])
         df['month']=df['發生日期'].dt.month
         df['day']=df['發生日期'].dt.day
-        
+
         filtered_df = df[
             (df['month'] == selected_month) &
             (df['day'] == selected_day) &
             (df['發生地點'].isin(selected_cities)) &
             (df['天候名稱'].isin(selected_weathers)) &
             (df['光線名稱'].isin(selected_lights)) 
-            # (df['肇事逃逸類別名稱_是否肇逃'].isin(selected_runs))
         ]
         result_count = len(filtered_df)
         self.update_counts(result_count)
@@ -194,15 +194,16 @@ class Window(tk.Tk):
                 row['發生地點'],
                 row['天候名稱'],
                 row['光線名稱'],
-                row['速限_第1當事者'],
-                row['道路類別_第1當事者_名稱'],
+                row['速限第1當事者'],
+                row['道路類別第1當事者名稱'],
                 row['死亡受傷人數']
             ))
 
         # Read populate Map
         self.map.delete_all_marker()
         for _, row in data.iterrows():
-            lat=float(row['緯度'])
+            formatted_lat=row['緯度'].split('"')[0]
+            lat=float(formatted_lat)
             lng=float(row['經度'])
             self.map.set_position(lat,lng,marker=True)
                 
