@@ -9,7 +9,7 @@ class Window(tk.Tk):
     def __init__(self):
         super().__init__()
         self.title("交通事故資料查詢系統")
-        self.geometry("1600x1000")  
+        self.geometry("1400x1000")  
 
         self.init_vars()
 
@@ -113,10 +113,6 @@ class Window(tk.Tk):
             row = i // 3 + 1  # Start from row 2 to leave row 1 empty
             ttk.Checkbutton(parent, text=light, variable=self.light_vars[light]).grid(column=column, row=row, padx=5, pady=5, sticky=tk.W)
 
-        # 肇逃
-        ttk.Label(parent, text="肇逃：").grid(column=0, row=5, padx=5, pady=5, sticky=tk.E)
-        for i, (run, var) in enumerate(self.run_vars.items()):
-            ttk.Checkbutton(parent, text=run, variable=var).grid(column=i + 1, row=5, padx=5, pady=5, sticky=tk.W)
             
     def setup_map(self, parent):
         self.map = TkinterMapView(parent, width=800, height=400)
@@ -128,10 +124,10 @@ class Window(tk.Tk):
         self.pie_chart_button.grid(column=0, row=1, padx=10, pady=10)
 
     def setup_treeview(self, parent):
-        self.treeview = ttk.Treeview(parent, columns=('#0','#1', '#2', '#3', '#4', '#5', '#6', '#7', '#8','#9'),show='headings')
+        self.treeview = ttk.Treeview(parent, columns=('#0','#1', '#2', '#3', '#4', '#5', '#6', '#7', '#8'),show='headings')
         self.treeview.grid(column=0, row=0, sticky='nsew')
 
-        headings = ['日期', '時間', '事故類別', '地區', '天氣', '光線狀態','速限', '道路類別', '死亡受傷人數']
+        headings = ['發生日期', '發生時間', '事故類別', '發生地點', '天候名稱', '光線名稱', '道路類別_第1當事者_名稱','速限_第1當事者','死亡受傷人數']
         for i, col in enumerate(headings,start=1):
             self.treeview.heading('#' + str(i), text=col, anchor='center')
             self.treeview.column('#' + str(i), minwidth=60, width=150, anchor='s')
@@ -151,7 +147,7 @@ class Window(tk.Tk):
         selected_runs = [run for run, var in self.run_vars.items() if var.get()]
         
         try:
-            df=pd.read_csv(f"./data/{selected_year}.csv",encoding='utf-16')
+            df=pd.read_csv(f"./整理完的_csv/{selected_year}.csv",encoding='utf-16')
             df.columns=df.columns.str.strip()
         except FileNotFoundError:
             messagebox.showerror(f"找不到{selected_year}.csv資料")
@@ -194,16 +190,16 @@ class Window(tk.Tk):
                 row['發生地點'],
                 row['天候名稱'],
                 row['光線名稱'],
-                row['速限第1當事者'],
-                row['道路類別第1當事者名稱'],
+                row['速限_第1當事者'],
+                row['道路類別_第1當事者_名稱'],
                 row['死亡受傷人數']
             ))
 
         # Read populate Map
         self.map.delete_all_marker()
         for _, row in data.iterrows():
-            formatted_lat=row['緯度'].split('"')[0]
-            lat=float(formatted_lat)
+            
+            lat=float(row['緯度'])
             lng=float(row['經度'])
             self.map.set_position(lat,lng,marker=True)
                 
