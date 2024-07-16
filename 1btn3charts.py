@@ -9,7 +9,7 @@ class Window(tk.Tk):
     def __init__(self):
         super().__init__()
         self.title("交通事故資料查詢系統")
-        self.geometry("1400x1000")  
+        self.geometry("1400x900")  
 
         self.init_vars()
 
