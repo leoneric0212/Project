@@ -131,7 +131,7 @@ class Window(tk.Tk):
         self.treeview = ttk.Treeview(parent, columns=('#0','#1', '#2', '#3', '#4', '#5', '#6', '#7', '#8','#9','#10'),show='headings')
         self.treeview.grid(column=0, row=0, sticky='nsew')
 
-        headings = ['日期', '時間', '事故類別', '地區', '天氣', '光線狀態', '道路類別', '死亡受傷人數', '肇因研判', '肇事逃逸']
+        headings = ['日期', '時間', '事故類別', '地區', '天氣', '光線狀態','速限', '道路類別', '死亡受傷人數']
         for i, col in enumerate(headings,start=1):
             self.treeview.heading('#' + str(i), text=col, anchor='center')
             self.treeview.column('#' + str(i), minwidth=60, width=150, anchor='e')
@@ -151,7 +151,7 @@ class Window(tk.Tk):
         selected_runs = [run for run, var in self.run_vars.items() if var.get()]
         
         try:
-            df=pd.read_csv(f"{selected_year}.csv",encoding='utf-16')
+            df=pd.read_csv(f"./整理完的_csv/變數刪減{selected_year}.csv",encoding='utf-16')
         except FileNotFoundError:
             messagebox.showerror(f"找不到{selected_year}.csv資料")
         df['發生月份']=df["發生月份"].astype(str)
@@ -186,8 +186,9 @@ class Window(tk.Tk):
                 row['發生地點'],
                 row['天候名稱'],
                 row['光線名稱'],
-                row['死亡受傷人數'],
-                row['當事者順位']
+                row['速限_第1當事者'],
+                row['道路類別_第1當事者_名稱'],
+                row['死亡受傷人數']
             ))
 
         # Read populate Map
