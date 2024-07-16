@@ -9,7 +9,7 @@ class Window(tk.Tk):
     def __init__(self):
         super().__init__()
         self.title("交通事故資料查詢系統")
-        self.geometry("1400x900")  
+        self.geometry("1280x900")  
 
         self.init_vars()
 
@@ -81,14 +81,6 @@ class Window(tk.Tk):
         self.day.grid(column=4, row=0, padx=5, pady=5)
         ttk.Label(parent, text="日").grid(column=5, row=0, padx=5, pady=5, sticky=tk.E)
 
-        # ttk.Label(parent, text="到：").grid(column=0, row=1, padx=5, pady=5, sticky=tk.E)
-        # self.end_year = ttk.Combobox(parent, values=self.years, width=5, state="readonly")
-        # self.end_year.grid(column=1, row=1, padx=5, pady=5)
-        # self.end_month = ttk.Combobox(parent, values=self.months, width=5, state="readonly")
-        # self.end_month.grid(column=2, row=1, padx=5, pady=5)
-        # self.end_day = ttk.Combobox(parent, values=self.days, width=5, state="readonly")
-        # self.end_day.grid(column=3, row=1, padx=5, pady=5)
-
         self.year.bind("<<ComboboxSelected>>", self.update_dates)
         self.month.bind("<<ComboboxSelected>>", self.update_dates)
         self.day.bind("<<ComboboxSelected>>", self.update_dates)
@@ -115,22 +107,22 @@ class Window(tk.Tk):
 
             
     def setup_map(self, parent):
-        self.map = TkinterMapView(parent, width=800, height=400)
+        self.map = TkinterMapView(parent, width=600, height=400)
         self.map.grid(column=0, row=0, padx=10, pady=10)
         self.map.set_position(25.115045154785246, 121.53834693952264,marker=True)
         
 
-        self.pie_chart_button = ttk.Button(parent, text="顯示对应的线图", command=self.show_pie_chart)
+        self.pie_chart_button = ttk.Button(parent, text="顯示对应的线图", command=self.show_charts)
         self.pie_chart_button.grid(column=0, row=1, padx=10, pady=10)
 
     def setup_treeview(self, parent):
-        self.treeview = ttk.Treeview(parent, columns=('#0','#1', '#2', '#3', '#4', '#5', '#6', '#7', '#8'),show='headings')
+        self.treeview = ttk.Treeview(parent, columns=('#0','#1', '#2', '#3', '#4', '#5', '#6', '#7', '#8','#9'),show='headings')
         self.treeview.grid(column=0, row=0, sticky='nsew')
 
-        headings = ['發生日期', '發生時間', '事故類別', '發生地點', '天候名稱', '光線名稱', '道路類別_第1當事者_名稱','速限_第1當事者','死亡受傷人數']
+        headings = ['發生日期', '發生時間', '事故類別', '發生地點', '天候名稱', '光線名稱','速限', '道路類別','事故類型','死亡受傷人數']
         for i, col in enumerate(headings,start=1):
             self.treeview.heading('#' + str(i), text=col, anchor='center')
-            self.treeview.column('#' + str(i), minwidth=60, width=150, anchor='s')
+            self.treeview.column('#' + str(i), minwidth=60, width=120, anchor='s')
 
         scrollbar = ttk.Scrollbar(parent, orient="vertical", command=self.treeview.yview)
         scrollbar.grid(column=1, row=0, sticky='ns')
@@ -192,6 +184,7 @@ class Window(tk.Tk):
                 row['光線名稱'],
                 row['速限_第1當事者'],
                 row['道路類別_第1當事者_名稱'],
+                row['事故類型及型態大類別名稱'],
                 row['死亡受傷人數']
             ))
 
@@ -220,65 +213,38 @@ class Window(tk.Tk):
         else:
             self.day['values']=list(range(1,32))
 
-        # self.end_year['values'] = list(range(start_year, 2025))
-        # self.end_month['values'] = list(range(start_month, 13))
-
-        # self.end_year.set(self.start_year.get())
-        # self.end_month.set(self.start_month.get())
-
     def select_all(self):
         for var in self.city_vars.values():
             var.set(True)
-
-    def show_pie_chart(self):
-        selected_cities = [city for city, var in self.city_vars.items() if var.get()]
-        selected_weather = [weather for weather, var in self.weather_vars.items() if var.get()]
-        selected_light = [light for light, var in self.light_vars.items() if var.get()]
-        selected_run = [run for run, var in self.run_vars.items() if var.get()]
-
-        # 假资料
-        data = [
-            {'事故類別': '碰撞', '肇事逃逸': '否'},
-            {'事故類別': '碰撞', '肇事逃逸': '是'},
-            {'事故類別': '倒車', '肇事逃逸': '否'},
-            {'事故類別': '碰撞', '肇事逃逸': '否'},
-            {'事故類別': '碰撞', '肇事逃逸': '是'},
-            {'事故類別': '倒車', '肇事逃逸': '否'},
-            {'事故類別': '倒車', '肇事逃逸': '是'},
-        ]
-
-        accident_types = {}
-        for row in data:
-            if row['肇事逃逸'] in selected_run:
-                if row['事故類別'] in accident_types:
-                    accident_types[row['事故類別']] += 1
-                else:
-                    accident_types[row['事故類別']] = 1
-
-        #  dictionary ---> pandas DataFrame for plotting
-        df = pd.DataFrame(list(accident_types.items()), columns=['事故類別', 'Count'])
-        fig, axes = plt.subplots(nrows=2, ncols=2, figsize=(12, 10))
+    def get_treeview_data(self):
+        data = []
+        for row in self.treeview.get_children():
+            data.append(self.treeview.item(row)['values'])
+        columns = ['日期', '時間', '事故類別', '地區', '天氣', '光線狀態', '道路類別', '速限', '事故類型及型態大類別名稱','死亡受傷人數']
+        df = pd.DataFrame(data, columns=columns)
+        return df
+# 事故類別:人車、車車
+# 道路類別:省道、國道
+    def show_charts(self):
         plt.rcParams['font.sans-serif'] = ['Microsoft YaHei'] # 使用中文字體
+        df = self.get_treeview_data()
+        if df.empty:
+            messagebox.showerror("錯誤","未選擇資料")
+            return
+        fig, axes = plt.subplots(nrows=1, ncols=2, figsize=(15, 6))
 
-        # Pie chart
-        axes[0, 0].pie(df['Count'], labels=df['事故類別'], autopct='%1.1f%%', startangle=140)
-        axes[0, 0].set_title('事故類別分佈')
-
-        # Bar chart
-        axes[0, 1].bar(df['事故類別'], df['Count'], color='skyblue')
-        axes[0, 1].set_title('事故類別分佈 - 柱狀圖')
-
-        # Line chart
-        axes[1, 0].plot(df['事故類別'], df['Count'], marker='o', color='orange', linestyle='-')
-        axes[1, 0].set_title('事故類別分佈 - 折線圖')
-        axes[1, 0].set_xlabel('事故類別')
-        axes[1, 0].set_ylabel('Count')
-
+        weather_counts = df['天氣'].value_counts()
+        axes[0].pie(weather_counts, labels=weather_counts.index, autopct='%1.1f%%', startangle=140)
+        axes[0].set_title('天候分佈')
         
-        axes[1, 1].axis('off')
-        plt.tight_layout()
+        accident_counts = df['事故類型及型態大類別名稱'].value_counts()
+        fig, ax = plt.subplots(figsize=(10, 6))
+        axes[1].bar(accident_counts.index, accident_counts.values, color='skyblue')
+        axes[1].set_xlabel('事故類型')
+        axes[1].set_ylabel('件數')
+        axes[1].set_title('交通事故類型分佈')
+        axes[1].tick_params(axis='x',rotation=45)
         plt.show()
-
 if __name__ == "__main__":
     app = Window()
     app.mainloop()
