@@ -143,8 +143,8 @@ class Window(tk.Tk):
    
     def submit_data(self):
         selected_year = self.year.get()
-        selected_month = self.month.get()
-        selected_day = self.day.get()
+        selected_month = int(self.month.get())
+        selected_day = int(self.day.get())
         selected_cities = [city for city, var in self.city_vars.items() if var.get()]
         selected_weathers = [weather for weather, var in self.weather_vars.items() if var.get()]
         selected_lights = [light for light, var in self.light_vars.items() if var.get()]
@@ -154,11 +154,13 @@ class Window(tk.Tk):
             df=pd.read_csv(f"./整理完的_csv/變數刪減{selected_year}.csv",encoding='utf-16')
         except FileNotFoundError:
             messagebox.showerror(f"找不到{selected_year}.csv資料")
-        df['發生月份']=df["發生月份"].astype(str)
+        df['發生日期']=pd.to_datetime(df['發生日期'])
+        df['month']=df['發生日期'].dt.month
+        df['day']=df['發生日期'].dt.day
+        
         filtered_df = df[
-            # (df['發生日期'].str.startswith(f"{selected_year}/{selected_month}/{selected_day}")) &
-            #先用月份測試資料
-            (df['發生月份'].str.contains(selected_month)) &
+            (df['month'] == selected_month) &
+            (df['day'] == selected_day) &
             (df['發生地點'].isin(selected_cities)) &
             (df['天候名稱'].isin(selected_weathers)) &
             (df['光線名稱'].isin(selected_lights)) 
@@ -177,11 +179,17 @@ class Window(tk.Tk):
         for row in self.treeview.get_children():
             self.treeview.delete(row)
 
-        # Read populate Treeview
         for _, row in data.iterrows():
+            formatted_time=row['發生時間'].split('.')[0]
+            formatted_date=row['發生日期'].strftime('%Y-%m-%d')
+            
+            
+            
+
+        # Read populate Treeview
             self.treeview.insert('','end', values=(
-                row['發生日期'],
-                row['發生時間'],
+                formatted_date,
+                formatted_time,
                 row['事故類別名稱'],
                 row['發生地點'],
                 row['天候名稱'],
