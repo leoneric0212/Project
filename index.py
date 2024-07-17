@@ -1,6 +1,6 @@
 import tkinter as tk
 from tkinter import ttk, messagebox
-import csv
+import platform
 import matplotlib.pyplot as plt  # Import Matplotlib
 from tkintermapview import TkinterMapView
 import pandas as pd
@@ -221,7 +221,10 @@ class Window(tk.Tk):
         return df
     
     def show_charts(self):
-        plt.rcParams['font.sans-serif'] = ['Arial Unicode MS']  # 使用中文字體
+        if platform.system() == 'Windows':
+            plt.rcParams['font.sans-serif'] = ['Microsoft YaHei', 'SimHei', 'SimSun']
+        elif platform.system() == 'Darwin':  # macOS
+            plt.rcParams['font.sans-serif'] = ['PingFang', 'STHeiti', 'Arial Unicode MS']# 使用中文字體
         df = self.get_treeview_data()
         if df.empty:
             messagebox.showerror("錯誤","未選擇資料")
