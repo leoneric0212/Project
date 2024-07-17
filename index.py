@@ -6,6 +6,7 @@ from tkintermapview import TkinterMapView
 import pandas as pd
 
 class Window(tk.Tk):
+   
     def __init__(self):
         super().__init__()
         self.title("交通事故資料查詢系統")
@@ -169,9 +170,6 @@ class Window(tk.Tk):
         for _, row in data.iterrows():
             formatted_time=row['發生時間'].split('.')[0]
             formatted_date=row['發生日期'].strftime('%Y-%m-%d')
-            
-            
-            
 
         # Read populate Treeview
             self.treeview.insert('','end', values=(
@@ -213,6 +211,7 @@ class Window(tk.Tk):
     def select_all(self):
         for var in self.city_vars.values():
             var.set(True)
+
     def get_treeview_data(self):
         data = []
         for row in self.treeview.get_children():
@@ -221,10 +220,8 @@ class Window(tk.Tk):
         df = pd.DataFrame(data, columns=columns)
         return df
     
-    
-    
     def show_charts(self):
-        plt.rcParams['font.sans-serif'] = ['SimSun'] # 使用中文字體
+        plt.rcParams['font.sans-serif'] = ['Arial Unicode MS']  # 使用中文字體
         df = self.get_treeview_data()
         if df.empty:
             messagebox.showerror("錯誤","未選擇資料")
