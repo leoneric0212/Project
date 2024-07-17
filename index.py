@@ -119,7 +119,7 @@ class Window(tk.Tk):
         self.treeview = ttk.Treeview(parent, columns=('#0','#1', '#2', '#3', '#4', '#5', '#6', '#7', '#8','#9'),show='headings')
         self.treeview.grid(column=0, row=0, sticky='nsew')
 
-        headings = ['發生日期', '發生時間', '事故類別', '發生地點', '天候名稱', '光線名稱','速限', '道路類別','事故類型','死亡受傷人數']
+        headings = ['發生日期', '發生時間', '事故類別', '發生地點', '天氣', '光線名稱','速限', '道路類別','事故類型','死亡受傷人數']
         for i, col in enumerate(headings,start=1):
             self.treeview.heading('#' + str(i), text=col, anchor='center')
             self.treeview.column('#' + str(i), minwidth=60, width=120, anchor='s')
@@ -136,7 +136,6 @@ class Window(tk.Tk):
         selected_cities = [city for city, var in self.city_vars.items() if var.get()]
         selected_weathers = [weather for weather, var in self.weather_vars.items() if var.get()]
         selected_lights = [light for light, var in self.light_vars.items() if var.get()]
-        selected_runs = [run for run, var in self.run_vars.items() if var.get()]
         
         try:
             df=pd.read_csv(f"./data/{selected_year}.csv",encoding='utf-16')
@@ -195,9 +194,7 @@ class Window(tk.Tk):
             lat=float(row['緯度'])
             lng=float(row['經度'])
             self.map.set_position(lat,lng,marker=True)
-                
-
-
+            
     def update_dates(self, event=None):
         year = int(self.year.get())
         month = int(self.month.get())
@@ -220,31 +217,54 @@ class Window(tk.Tk):
         data = []
         for row in self.treeview.get_children():
             data.append(self.treeview.item(row)['values'])
-        columns = ['日期', '時間', '事故類別', '地區', '天氣', '光線狀態', '道路類別', '速限', '事故類型及型態大類別名稱','死亡受傷人數']
+        columns = ['日期', '時間', '事故類別', '地區', '天氣', '光線狀態', '速限', '道路類別', '事故類型及型態大類別名稱','死亡受傷人數']
         df = pd.DataFrame(data, columns=columns)
         return df
-# 事故類別:人車、車車
-# 道路類別:省道、國道
+    
+    
+    
     def show_charts(self):
-        plt.rcParams['font.sans-serif'] = ['Microsoft YaHei'] # 使用中文字體
+        plt.rcParams['font.sans-serif'] = ['SimSun'] # 使用中文字體
         df = self.get_treeview_data()
         if df.empty:
             messagebox.showerror("錯誤","未選擇資料")
             return
-        fig, axes = plt.subplots(nrows=1, ncols=2, figsize=(15, 6))
-
+        fig, axes = plt.subplots(nrows=2, ncols=2, figsize=(12, 8))
+        df['時間分類'] = df['時間'].apply(classify_time)
         weather_counts = df['天氣'].value_counts()
-        axes[0].pie(weather_counts, labels=weather_counts.index, autopct='%1.1f%%', startangle=140)
-        axes[0].set_title('天候分佈')
+        axes[0,0].pie(weather_counts, labels=weather_counts.index, autopct='%1.1f%%', startangle=140)
+        axes[0,0].set_title('天候分佈')
         
-        accident_counts = df['事故類型及型態大類別名稱'].value_counts()
-        fig, ax = plt.subplots(figsize=(10, 6))
-        axes[1].bar(accident_counts.index, accident_counts.values, color='skyblue')
-        axes[1].set_xlabel('事故類型')
-        axes[1].set_ylabel('件數')
-        axes[1].set_title('交通事故類型分佈')
-        axes[1].tick_params(axis='x',rotation=45)
+        accident_type_counts = df['事故類型及型態大類別名稱'].value_counts()
+        axes[0,1].bar(accident_type_counts.index, accident_type_counts.values, color='skyblue')
+        axes[0,1].set_xlabel('事故類型')
+        axes[0,1].set_ylabel('事件數')
+        axes[0,1].set_title('交通事故類型分佈')
+        axes[0,1].tick_params(axis='x')
+
+        road_type_counts=df['道路類別'].value_counts()
+        axes[1,0].bar(road_type_counts.index, road_type_counts.values, color='brown')
+        axes[1,0].set_xlabel('道路類型')
+        axes[1,0].set_ylabel('事件數')
+        axes[1,0].set_title('道路類型分佈')
+        axes[1,0].tick_params(axis='x')
+
+        time_type_counts=df['時間分類'].value_counts()
+        axes[1,1].pie(time_type_counts,labels=time_type_counts.index, autopct='%1.1f%%', startangle=140)
+        axes[1,1].set_title('事故時間分佈')
+
+        plt.tight_layout()  
         plt.show()
+
+def classify_time(time_str):
+    time = pd.to_datetime(time_str, format='%H:%M:%S').time()
+    if time >= pd.to_datetime('08:00:00', format='%H:%M:%S').time() and time < pd.to_datetime('18:00:00', format='%H:%M:%S').time():
+        return '白天'
+    elif time >= pd.to_datetime('18:00:00', format='%H:%M:%S').time() or time < pd.to_datetime('04:00:00', format='%H:%M:%S').time():
+        return '晚上'
+    else:
+        return '清晨'
+
 if __name__ == "__main__":
     app = Window()
     app.mainloop()
