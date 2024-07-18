@@ -24,7 +24,7 @@ https://github.com/mjchen004/traffic_incident
 ## 六、資料說明:
 1.傷亡道路交通事故資料( [政府資料開放平台](https://data.gov.tw/datasets/search?p=1&size=10&s=_score_desc&rft=%E4%BA%A4%E9%80%9A%E4%BA%8B%E6%95%85) 
 
-2. Google API
+2.Google API
 
 ## 七、資料格式:
 * 個年度資料csv檔案
