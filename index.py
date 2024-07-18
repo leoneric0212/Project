@@ -241,7 +241,7 @@ class Window(tk.Tk):
         fig, axes = plt.subplots(nrows=2, ncols=2, figsize=(12, 8))
         df['時間分類'] = df['時間'].apply(classify_time)
         weather_counts = df['天氣'].value_counts()
-        axes[0,0].pie(weather_counts, labels=weather_counts.index, autopct='%1.1f%%', startangle=0)
+        axes[0,0].pie(weather_counts, labels=weather_counts.index, autopct='%1.1f%%', startangle=90)
         axes[0,0].set_title('天候分佈')
         
         accident_type_counts = df['事故類型及型態大類別名稱'].value_counts()
@@ -259,7 +259,7 @@ class Window(tk.Tk):
         axes[1,0].tick_params(axis='x')
 
         time_type_counts=df['時間分類'].value_counts()
-        axes[1,1].pie(time_type_counts,labels=time_type_counts.index, autopct='%1.1f%%', startangle=0)
+        axes[1,1].pie(time_type_counts,labels=time_type_counts.index, autopct='%1.1f%%', startangle=90)
         axes[1,1].set_title('事故時間分佈')
 
         plt.tight_layout()  
