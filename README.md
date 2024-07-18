@@ -9,4 +9,7 @@
 ### 2.將事故地點以google地圖圖像化
 ### 3.交通事故比例分析
 
-直接修改測試
+### ![第一个画面](./img/initial.png)
+### ![查询](./img/search.png)
+### ![分析表](./img/chart.png)
+### ![地图](./img/map.png)
