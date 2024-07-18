@@ -69,7 +69,7 @@ class Window(tk.Tk):
 
     def setup_date_widgets(self, parent):
         self.year = ttk.Combobox(parent, values=self.years, width=5, state="readonly")
-        self.year.set(self.years[-1])
+        self.year.set(self.years[0])
         self.year.grid(column=0, row=0, padx=5, pady=5)
         ttk.Label(parent, text="年").grid(column=1, row=0, padx=5, pady=5, sticky=tk.E)
         self.month = ttk.Combobox(parent, values=self.months, width=5, state="readonly")
@@ -195,7 +195,18 @@ class Window(tk.Tk):
         year = int(self.year.get())
         month = int(self.month.get())
         day = int(self.day.get())
-        if month == 2:
+        if year == 2024:
+            self.month['values']=list(range(1,7))
+            if month>6:
+                self.month.set(6)
+        else:
+            self.month['values']=list(range(1,13))
+        
+        if month == 2 and (year == 2020 or year==2024):
+            self.day['values']=list(range(1,30))
+            if day > 29:
+                self.day.set(29)
+        elif month == 2:
             self.day['values']=list(range(1,29))
             if day > 28:
                 self.day.set(28)
@@ -230,7 +241,7 @@ class Window(tk.Tk):
         fig, axes = plt.subplots(nrows=2, ncols=2, figsize=(12, 8))
         df['時間分類'] = df['時間'].apply(classify_time)
         weather_counts = df['天氣'].value_counts()
-        axes[0,0].pie(weather_counts, labels=weather_counts.index, autopct='%1.1f%%', startangle=140)
+        axes[0,0].pie(weather_counts, labels=weather_counts.index, autopct='%1.1f%%', startangle=0)
         axes[0,0].set_title('天候分佈')
         
         accident_type_counts = df['事故類型及型態大類別名稱'].value_counts()
@@ -248,7 +259,7 @@ class Window(tk.Tk):
         axes[1,0].tick_params(axis='x')
 
         time_type_counts=df['時間分類'].value_counts()
-        axes[1,1].pie(time_type_counts,labels=time_type_counts.index, autopct='%1.1f%%', startangle=140)
+        axes[1,1].pie(time_type_counts,labels=time_type_counts.index, autopct='%1.1f%%', startangle=0)
         axes[1,1].set_title('事故時間分佈')
 
         plt.tight_layout()  
