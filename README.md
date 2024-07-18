@@ -8,6 +8,7 @@ https://github.com/mjchen004/traffic_incident
 ### 3.交通事故比例分析
 ## 五、功能簡介:
 下拉選單：用戶可以從下拉選單中事件發生日期。
+查詢
 
 ## 六、資料說明:
 1.傷亡道路交通事故資料( [政府資料開放平台](https://data.gov.tw/datasets/search?p=1&size=10&s=_score_desc&rft=%E4%BA%A4%E9%80%9A%E4%BA%8B%E6%95%85) 
@@ -22,9 +23,12 @@ https://github.com/mjchen004/traffic_incident
 
 
 ### ![第一个画面](./img/initial.png)
+進入的第一視窗介面
 ### ![查询](./img/search.png)
+篩選條件後進行查詢
 ### ![分析表](./img/chart.png)
+交通事故類型、天候分佈、道路類型分佈、事故時間分佈之圖表
 ### ![地图](./img/map.png)
-
+交通事故發生之地點呈現
 # 成果影片連結:
 > ## [Youtube連接](https://www.youtube.com/watch?v=-T5VEKr6J7M)
